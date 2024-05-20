@@ -1,12 +1,24 @@
+#![windows_subsystem = "windows"]
 use std::num::NonZeroU32;
 
 use softbuffer::{Context, Surface};
 use tiny_skia::{Color, FillRule, Paint, PathBuilder, Pixmap, Stroke, Transform};
-use winit::{application::ApplicationHandler, event::WindowEvent, event_loop::{ActiveEventLoop, ControlFlow, EventLoop}, window::{Fullscreen, Window, WindowLevel}};
+use winit::{application::ApplicationHandler, event::WindowEvent, event_loop::{ActiveEventLoop, ControlFlow, EventLoop}, platform::windows::WindowAttributesExtWindows, window::{Fullscreen, Icon, Window, WindowLevel}};
 
 #[derive(Default)]
 struct App {
     window: Option<Window>,
+}
+
+fn load_icon() -> Icon {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::load_from_memory(include_bytes!("../assets/dot.ico")).unwrap().into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+
+    Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
 }
 
 impl ApplicationHandler for App {
@@ -16,7 +28,8 @@ impl ApplicationHandler for App {
             .with_decorations(false)
             .with_fullscreen(Some(Fullscreen::Borderless(None)))
             .with_title("dot")
-            .with_window_level(WindowLevel::AlwaysOnTop);
+            .with_window_level(WindowLevel::AlwaysOnTop)
+            .with_taskbar_icon(Some(load_icon()));
         let window = event_loop.create_window(window_attributes).unwrap();
         let _ = window.set_cursor_hittest(false);
         self.window = Some(window);

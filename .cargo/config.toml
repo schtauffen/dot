@@ -1,2 +1,5 @@
 [build]
 target = "x86_64-pc-windows-gnu"
+
+[alias]
+release = "build --release"
